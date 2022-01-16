@@ -1,4 +1,6 @@
-from scipy.misc import imread, imsave
+# from scipy.misc import imread, imsave
+import cv2
+from matplotlib.pyplot import imsave
 import torch
 from torch.autograd import Variable
 from net_canny import Net
@@ -19,14 +21,15 @@ def canny(raw_img, use_cuda=False):
 
     blurred_img, grad_mag, grad_orientation, thin_edges, thresholded, early_threshold = net(data)
 
-    imsave('gradient_magnitude.png',grad_mag.data.cpu().numpy()[0,0])
-    imsave('thin_edges.png', thresholded.data.cpu().numpy()[0, 0])
-    imsave('final.png', (thresholded.data.cpu().numpy()[0, 0] > 0.0).astype(float))
-    imsave('thresholded.png', early_threshold.data.cpu().numpy()[0, 0])
+    imsave('gradient_magnitude.png', grad_mag.permute(0, 2, 3, 1).cpu().detach().numpy()[0,:,:,0])
+    imsave('thin_edges.png', thresholded.permute(0, 2, 3, 1).cpu().detach().numpy()[0,:,:,0])
+    imsave('final.png', (thresholded.permute(0, 2, 3, 1).cpu().detach().numpy()[0,:,:,0] > 0.0).astype(float))
+    imsave('thresholded.png', early_threshold.permute(0, 2, 3, 1).cpu().detach().numpy()[0,:,:,0])
 
 
 if __name__ == '__main__':
-    img = imread('fb_profile.jpg') / 255.0
+    image_name = '0001_fps25_0001.png'
+    img = cv2.cvtColor(cv2.imread(image_name), cv2.COLOR_BGR2RGB) / 255.
 
     # canny(img, use_cuda=False)
     canny(img, use_cuda=True)
